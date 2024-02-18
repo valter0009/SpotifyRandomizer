@@ -1,0 +1,81 @@
+﻿@page "/"
+@inject NavigationManager navManager
+@using SpotifyAPI.Web
+@using Microsoft.Extensions.Configuration
+@using SpotifyBlazorSrvr.Services
+@inject AuthService AuthService
+@inject SpotifyService SpotifyService
+<h1>Hello, world!</h1>
+
+@if (AuthService._isAuthed && AuthService._me != null)
+{
+	<h2>Welcome @AuthService._me.DisplayName!</h2>
+	
+}
+else
+{
+	<a href="@AuthService._authUri">Log In</a>
+}
+
+
+
+<button @onclick="GetRandomTrack">Get random track</button>
+
+
+
+
+
+@if (track != null)
+{
+	<div>
+
+		<h3>@track.Name</h3>
+		<p>By @string.Join(", ", track.Artists.Select(a => a.Name))</p>
+		<p>Album: @track.Album.Name</p>
+		<img src="@track.Album.Images[0].Url" alt="Album cover" style="width: 100px; height: 100px;">
+		<a href="@track.Uri">Track URI</a>
+
+	</div>
+}
+
+@code {
+
+	protected override void OnInitialized()
+	{
+		
+		
+			 AuthService.Login();
+			
+		
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+
+
+		AuthService.AuthCallback();
+
+
+	}
+
+	private FullTrack? track;
+	private List<string> genres;
+	private string randomSongTitle;
+
+	private async Task GetRandomTrack()
+	{
+		
+		track = await SpotifyService.GetRandomTrackAsync();
+		@if (track.Name == null || track.Name == "")
+		{
+			track = await SpotifyService.GetRandomTrackAsync();
+		}
+	}
+	
+	private async Task FetchGenres()
+	{
+		RecommendationGenresResponse genresResponse = await SpotifyService.GetGenresAsync();
+		
+		genres= genresResponse.Genres;
+	}
+}
