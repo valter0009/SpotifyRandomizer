@@ -2,6 +2,13 @@
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: rgb(100,120,98);
+    background: radial-gradient(circle, rgba(100,120,98,1) 11%, rgba(81,193,88,1) 66%, rgba(0,0,0,1) 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
 }
 
 h1:focus {

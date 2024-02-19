@@ -7,13 +7,25 @@ namespace SpotifyBlazorSrvr.Services
 	{
 		public Uri _authUri;
 
-		public bool _isAuthed;
-
 		public NavigationManager navManager;
 
-		public PrivateUser _me;
-
 		public IConfiguration Configuration;
+
+		public event Action OnAuthenticationChanged;
+
+		public bool _isAuthed;
+
+		public bool IsAuthed
+		{
+			get => _isAuthed;
+			private set
+			{
+				_isAuthed = value;
+				OnAuthenticationChanged?.Invoke();
+			}
+		}
+
+
 
 
 
@@ -25,7 +37,7 @@ namespace SpotifyBlazorSrvr.Services
 		}
 
 
-		public void Login()
+		public void CreateLoginUri()
 		{
 			var baseUri = navManager.ToAbsoluteUri(navManager.BaseUri);
 
@@ -36,7 +48,7 @@ namespace SpotifyBlazorSrvr.Services
 			_authUri = loginRequest.ToUri();
 
 		}
-		public string AuthCallback()
+		public string GetAccessToken()
 		{
 			var uri = new Uri(navManager.Uri);
 			var maxLen = Math.Min(1, uri.Fragment.Length);
@@ -44,8 +56,8 @@ namespace SpotifyBlazorSrvr.Services
 				.Split("&", StringSplitOptions.RemoveEmptyEntries)?
 				.Select(param => param.Split("=", StringSplitOptions.RemoveEmptyEntries))?
 				.ToDictionary(param => param[0], param => param[1]) ?? new Dictionary<string, string>();
-			_isAuthed = fragmentParams.ContainsKey("access_token");
-			return _isAuthed ? fragmentParams["access_token"] : null;
+			IsAuthed = fragmentParams.ContainsKey("access_token");
+			return IsAuthed ? fragmentParams["access_token"] : null;
 		}
 
 

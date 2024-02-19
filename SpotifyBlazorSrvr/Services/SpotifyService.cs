@@ -17,9 +17,10 @@ namespace SpotifyBlazorSrvr.Services
 		{
 
 
-			client = new SpotifyClient(authService.AuthCallback());
+			client = new SpotifyClient(authService.GetAccessToken());
 
 		}
+
 
 		public int GetRandomNumberRange(int min, int max)
 		{
@@ -96,11 +97,7 @@ namespace SpotifyBlazorSrvr.Services
 		}
 
 
-		public async Task<RecommendationGenresResponse> GetGenresAsync()
-		{
-			RecommendationGenresResponse genres = await client!.Browse.GetRecommendationGenres();
-			return genres;
-		}
+
 
 	}
 }
