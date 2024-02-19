@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/randomsearch"
 @inject NavigationManager navManager
 @using SpotifyAPI.Web
 @using Microsoft.Extensions.Configuration
@@ -64,12 +64,16 @@ else
 
 	private async Task GetRandomTrack()
 	{
-		
-		track = await SpotifyService.GetRandomTrackAsync();
-		@if (track.Name == null || track.Name == "")
+		int retryCount = 0;
+		int maxRetries = 3; 
+		do
 		{
 			track = await SpotifyService.GetRandomTrackAsync();
+			retryCount++;
 		}
+		while ((track == null || string.IsNullOrEmpty(track.Name)) && retryCount < maxRetries);
+
+		
 	}
 	
 	private async Task FetchGenres()

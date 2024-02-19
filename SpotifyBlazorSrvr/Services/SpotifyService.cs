@@ -31,7 +31,7 @@ namespace SpotifyBlazorSrvr.Services
 
 		public string GetRandomCharacter()
 		{
-			char[] alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZñÑαβγδεζηθικλμνξοπρστυφχψωАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ!@#$%^&*?0123456789אבגדהוזחטיכלמנסעפצקרשתابتثجحخدذرزسشصضطظعغفقكلمنهويअआइईउऊएऐओऔकखगघचछजझटठडढणतथदधनपफबभमयरलवशषसहঅআইঈউঊঋএঐওঔকখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহあいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン가나다라마바사아자차카타파하爱北从到额发个好见可乐吗你哦跑去人是他我想要在ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðòóôõöøùúûüýþÿЁЂЃЄЅІЇЈЉЊЋЌЎЏёђѓєѕіїјљњћќўџॐक़ख़ग़ज़ड़ढ़फ़य़ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲ".ToCharArray();
+			char[] alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZñÑαβγδεζηθικλμνξοπρστυφχψωАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ!@#$%^&*?0123456789אבגדהוזחטיכלמנסעפצקרשתابتثجحخدذرزسشصضطظعغفقكلمنهويअआइईउऊएऐओऔकखगघचछजझटठडढणतथदधनपफबभमयरलवशषसहঅআইঈউঊあいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン가나다라마바사아자차카타파하爱北从到额发个好见可乐吗你哦跑去人是他我想要在ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðòóôõöøùúûüýþÿЁЂЃЄЅІЇЈЉЊЋЌЎЏёђѓєѕіїјљњћќўџॐक़ख़ग़ज़ड़ढ़फ़य़ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲ".ToCharArray();
 
 			var randomIndex = GetRandomNumberRange(0, alpha.Length);
 
@@ -49,44 +49,49 @@ namespace SpotifyBlazorSrvr.Services
 
 
 
-			var musicBrainSearchResult = q.FindRecordings(GetRandomCharacter(), 1000000, 0, true);
+			var musicBrainSearchResult = q.FindRecordings(GetRandomCharacter(), 100, 0, true);
 
 			var randomSongTitle = musicBrainSearchResult.Results.ToList()[GetRandomNumberRange(1, musicBrainSearchResult.Results.Count)].Item.Title;
 
 			return randomSongTitle ?? "No song found";
 		}
-		public async Task<FullTrack> GetRandomTrackAsync()
+		public async Task<FullTrack?> GetRandomTrackAsync()
 		{
 			try
 			{
-
-
+				var songTitle = GetRandomSongTitle();
+				if (string.IsNullOrEmpty(songTitle))
+				{
+					Log.Information("No song title was found.");
+					return null;
+				}
 
 				var response = await client!.Search.Item(
-					new SearchRequest(SearchRequest.Types.Track, GetRandomSongTitle())
+					new SearchRequest(SearchRequest.Types.Track, songTitle)
 					{
 						Limit = 50
 					});
-				if (response.Tracks != null && response.Tracks.Items.Count > 0)
-				{
 
-					var randomOffset = GetRandomNumberRange(0, response.Tracks.Items.Count);
+				if (response.Tracks != null && response.Tracks.Items.Any())
+				{
+					var randomOffset = GetRandomNumberRange(0, response.Tracks.Items.Count - 1);
 					var track = await client.Tracks.Get(response.Tracks.Items[randomOffset].Id);
 
-					var NumberofTracks = response.Tracks.Items.Count;
-
-					var trackName = track.Name;
-
 					Log.Information("Tracks returned: {NumberOfTracks} Offset number: {randomOffset}, Track: {trackName}",
-						NumberofTracks, randomOffset.ToString(), trackName);
+						response.Tracks.Items.Count, randomOffset, track.Name);
 					return track;
 				}
-				return new FullTrack();
+				else
+				{
+					Log.Information("No tracks were found for the given title: {SongTitle}", songTitle);
+					return null;
+				}
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
-				throw;
+				Log.Error("An exception occurred in GetRandomTrackAsync: {ExceptionMessage}", e.Message);
+
+				return null;
 			}
 		}
 
