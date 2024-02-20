@@ -43,7 +43,7 @@ namespace SpotifyBlazorSrvr.Services
 
 			var loginRequest = new LoginRequest(baseUri, Configuration["SPOTIFY_CLIENT_ID"], LoginRequest.ResponseType.Token)
 			{
-				Scope = new[] { Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative }
+
 			};
 			_authUri = loginRequest.ToUri();
 
