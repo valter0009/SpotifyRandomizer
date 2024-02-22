@@ -86,11 +86,11 @@ h3 {
 
     .big-btn:hover, .small-btn-green:hover, .small-btn-black:hover {
         background-color: #6207e3;
-        transform: scale(1.05);
+        transform: scale(1.02);
     }
 
     .big-btn:active, .small-btn-green:active, .small-btn-black:active {
-        transform: scale(0.95);
+        transform: scale(0.98);
         background-color: #5a00d2;
     }
 

@@ -58,42 +58,46 @@ namespace SpotifyBlazorSrvr.Services
         }
         public async Task<FullTrack?> GetRandomTrackAsync()
         {
-            try
+            const int maxRetries = 5;
+            int attempts = 0;
+            while (attempts < maxRetries)
             {
-                var songTitle = GetRandomSongTitle();
-                if (string.IsNullOrEmpty(songTitle))
+                attempts++;
+                try
                 {
-                    Log.Information("No song title was found.");
-                    return null;
-                }
+                    var songTitle = GetRandomSongTitle();
+                    if (string.IsNullOrEmpty(songTitle))
+                    {
+                        Log.Information("No song title was found.");
+                        continue;
+                    }
 
-                var response = await client!.Search.Item(
-                    new SearchRequest(SearchRequest.Types.Track, songTitle)
+                    var response = await client!.Search.Item(new SearchRequest(SearchRequest.Types.Track, songTitle)
                     {
                         Limit = 50
                     });
 
-                if (response.Tracks != null && response.Tracks.Items.Any())
-                {
-                    var randomOffset = GetRandomNumberRange(0, response.Tracks.Items.Count - 1);
-                    var track = await client.Tracks.Get(response.Tracks.Items[randomOffset].Id);
+                    if (response.Tracks != null && response.Tracks.Items.Any())
+                    {
+                        var randomIndex = GetRandomNumberRange(0, response.Tracks.Items.Count);
+                        var track = response.Tracks.Items[randomIndex];
+                        return track;
+                    }
+                    else
+                    {
+                        Log.Information("No tracks were found for the given title: {SongTitle}", songTitle);
 
-                    Log.Information("Tracks returned: {NumberOfTracks} Offset number: {randomOffset}, Track: {trackName}",
-                        response.Tracks.Items.Count, randomOffset, track.Name);
-                    return track;
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    Log.Information("No tracks were found for the given title: {SongTitle}", songTitle);
-                    return null;
+                    Log.Error("An exception occurred in GetRandomTrackAsync: {ExceptionMessage}", e.Message);
+
                 }
             }
-            catch (Exception e)
-            {
-                Log.Error("An exception occurred in GetRandomTrackAsync: {ExceptionMessage}", e.Message);
 
-                return null;
-            }
+
+            return null;
         }
 
 

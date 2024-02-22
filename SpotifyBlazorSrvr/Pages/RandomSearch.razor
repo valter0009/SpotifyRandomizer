@@ -1,4 +1,5 @@
 ﻿@page "/"
+<PageTitle>Unpredictify</PageTitle>
 @inject NavigationManager navManager
 @using SpotifyAPI.Web
 @using SpotifyBlazorSrvr.Services
@@ -45,7 +46,8 @@
     {
         <div class="text-center login-container">
             <div class="login">
-                <h1>Unpredictify</h1>
+                <h1 class="jost-font">UNPREDICTIFY</h1>
+                <p class="text-danger">This app is build using Spotify API and is restricted to 25 users in development mode. If you want to try it out, contact me at ilyakudr09@gmail.com and I will add you to the white list.</p>
                 <h6 class="mt-4 mb-5">Venture into the Spotify abyss and discover artists and music you never knew existed.</h6>
                 <a href="@AuthService._authUri" class="big-btn text-decoration-none">Login to proceed</a>
             </div>
@@ -91,21 +93,15 @@
 
     private async Task GetRandomTrack()
     {
-        if (!canRequestNewTrack || isLoading) return;
+	    if (!canRequestNewTrack || isLoading) return;
 
-        isLoading = true; 
-        StateHasChanged();
-        cooldownTimer?.Start();
-        int retryCount = 0;
-        int maxRetries = 3;
-        do
-        {
-            _track = await SpotifyService.GetRandomTrackAsync();
-            retryCount++;
-        }
-        while ((_track == null || string.IsNullOrEmpty(_track.Name)) && retryCount < maxRetries);
+	    isLoading = true;
+	    StateHasChanged();
+	    _track = await SpotifyService.GetRandomTrackAsync(); 
+	    isLoading = false;
+	    StateHasChanged(); 
 
-        isLoading = false; 
-        StateHasChanged(); 
+	    canRequestNewTrack = false; 
+	    cooldownTimer?.Start(); 
     }
 }
