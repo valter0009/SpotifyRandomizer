@@ -93,6 +93,18 @@ h3 {
         transform: scale(0.98);
         background-color: #5a00d2;
     }
+.big-btn:disabled, .small-btn-green:disabled, .small-btn-black:disabled {
+    background-color: #aaa;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+
+.big-btn:disabled:hover, .small-btn-green:disabled:hover, .small-btn-black:disabled:hover {
+    background-color: #aaa;
+    transform: none;
+}
 
 .small-btn-green {
     background-color: #2ebd59;
@@ -129,7 +141,7 @@ a.small-btn-green, a.small-btn-black {
         min-height: 300px;
         max-height: 80vh;
     }
-
+    
     h3 {
         font-size: 1.2rem;
     }

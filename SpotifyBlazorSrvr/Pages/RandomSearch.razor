@@ -68,7 +68,7 @@
         AuthService.CreateLoginUri();
         AuthService.OnAuthenticationChanged += StateHasChanged;
 
-        cooldownTimer = new System.Timers.Timer(1000) { AutoReset = false };
+        cooldownTimer = new System.Timers.Timer(100) { AutoReset = false };
         cooldownTimer.Elapsed += (sender, args) =>
         {
             InvokeAsync(() =>
